@@ -1,0 +1,42 @@
+# Django
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.pdb
+*.py[co]
+*.~*
+
+# Environment Files
+.env
+
+# SQLite database
+db.sqlite3
+
+# Logs
+*.log
+logs/
+
+# macOS
+.DS_Store
+
+# Media and Static files
+media/
+staticfiles/
+
+# Virtual Environment
+.venv/
+.env/
+
+# VSCode
+.vscode/
+
+# Coverage reports
+.coverage
+*.cover
+coverage/
+
+# Other files
+*.swp
+*.swo
+*.swn

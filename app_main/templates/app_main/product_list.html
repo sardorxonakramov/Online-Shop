@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<main class="vh-100 bg-body-tertiary">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+
+    <script>
+        setTimeout(function() {
+            const messages = document.querySelector('.messages');
+            if (messages) {
+                messages.style.display = 'none';
+            }
+        }, 3000);  // 3 sekunddan keyin xabarlarni yashiradi
+    </script>
+{% endif %}
+
+    <div class="container m-auto mt-5 row gap-2 justify-content-center">
+        <h1 class="d-flex justify-content-center mb-10">{{ category.name }}</h1>
+        
+        {% for product in page_obj %}
+        <div class="card col-3 p-0">
+            <img class="card-img-top"
+                src="{{ product.image.url }}" alt="{{ product.name }}" />
+            <div class="card-body">
+                <h3>
+                    <a class="text-decoration-none" href="{% url 'product_detail' product.id %}">{{ product.title }}</a>
+                </h3>
+                <p class="card-text">
+                    {{ product.description|truncatewords:10 }}
+                </p>
+                <div class="d-flex flex-column gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <b>
+                            <small> Old price: </small>
+                        </b>
+                        <small class="text-decoration-line-through">
+                            <b class="text-danger">{{ product.old_price }}</b>
+                        </small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <b>
+                            <small>Current price: </small>
+                        </b>
+                        <small class="">
+                            <b class="text-success">{{ product.new_price }}</b>
+                        </small>
+                    </div>
+                </div>
+                <a href="{% url 'add_to_cart' product.id %}"
+                    class="mt-2 w-100 d-flex align-items-center justify-content-center font-bold btn btn-warning">
+                    <i class="bi bi-cart-plus"></i>
+                    Add to cart
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="d-flex justify-content-center mt-5">
+        <nav aria-label="...">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link text-dark" href="?page=1" tabindex="-1">&laquo;</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link text-dark" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link text-dark" href="#" tabindex="-1">&laquo;</a>
+                    </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <a class="page-link bg-dark text-white" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link text-dark" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link text-dark" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link text-dark" href="#">&raquo;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</main>
+{% endblock content %}

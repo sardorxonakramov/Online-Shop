@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="vh-100 bg-body-tertiary">
+    <div class="container m-auto mt-5 row gap-2 justify-content-center">
+        <h1 class="d-flex justify-content-center mb-5">Your Account</h1>
+        <div class="d-flex justify-content-center gap-5">
+            <img style="width: 300px; border-radius: 50%"
+                src="https://cdn3.iconfinder.com/data/icons/player/128/sound-18-1024.png" alt="Profile Picture" />
+            <div class="w-50">
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            
+                <script>
+                    setTimeout(function() {
+                        const messages = document.querySelector('.messages');
+                        if (messages) {
+                            messages.style.display = 'none';
+                        }
+                    }, 3000);  // 3 sekunddan keyin xabarlarni yashiradi
+                </script>
+            {% endif %}
+            
+            
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex flex-column gap-2">
+                        {{ form.first_name }}
+                        {{ form.last_name }}
+                        {{ form.email }}
+                        {{ form.password1 }}
+                        {{ form.password2 }}
+                        <button class="btn btn-dark" type="submit">
+                            Update my information
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}

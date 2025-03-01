@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="vh-100 bg-body-tertiary">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+
+    <script>
+        setTimeout(function() {
+            const messages = document.querySelector('.messages');
+            if (messages) {
+                messages.style.display = 'none';
+            }
+        }, 3000);  // 3 sekunddan keyin xabarlarni yashiradi
+    </script>
+{% endif %}
+
+    <div class="container m-auto mt-5 row gap-2 justify-content-center">
+        <h1 class="d-flex justify-content-center">Checkout</h1>
+        <section class="h-100 gradient-custom">
+            <div class="container py-2">
+                <div class="row d-flex justify-content-center my-4">
+                    <div class="col-md-8">
+                        <div class="card mb-4">
+                            <div class="card-header py-3">
+                                <h5 class="mb-0">Cart - {{ cart_items.count }} items</h5>
+                            </div>
+                            <div class="card-body">
+                                {% for item in cart_items %}
+                                <div class="row align-items-center cart-item" data-item-id="{{ item.product.id }}" data-price="{{ item.product.new_price }}">
+                                    <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
+                                        <img src="{{ item.product.image.url }}" class="w-100 rounded" alt="{{ item.product.title }}" />
+                                    </div>
+
+                                    <div class="col-lg-5 col-md-6 mb-4 mb-lg-0">
+                                        <p><strong>{{ item.product.title }}</strong></p>
+                                        <form method="post" action="{% url 'update_cart_item' item.product.id %}">
+                                            {% csrf_token %}
+                                            <a type="submit" href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i> Remove
+                                            </a>
+                                            <!-- Quantity input field -->
+                                            <div class="d-flex align-items-center">
+                                                <button type="submit" class="btn btn-primary btn-sm minus-btn">-</button>
+                                                <input type="number" class="form-control mx-2 text-center item-quantity" name="quantity" value="{{ item.quantity }}" min="1" readonly />
+                                                <button type="submit" class="btn btn-primary btn-sm plus-btn">+</button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                                        <p class="mt-2 text-muted item-total-price">
+                                            <strong>${{ item.total_price }}</strong>
+                                        </p>
+                                    </div>
+                                </div>
+                                <hr class="my-4" />
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Expected Shipping Delivery Section -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <p><strong>Expected shipping delivery</strong></p>
+                                <p class="mb-0">{{ date_str }} ===> {{ shipping_date }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Payment Methods Section -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <p><strong>We accept</strong></p>
+                                <div class="d-flex gap-2">
+                                    <img width="45px" src="https://mdbcdn.b-cdn.net/wp-content/plugins/woocommerce-gateway-stripe/assets/images/visa.svg" alt="Visa" />
+                                    <img width="45px" src="https://mdbcdn.b-cdn.net/wp-content/plugins/woocommerce-gateway-stripe/assets/images/amex.svg" alt="American Express" />
+                                    <img width="45px" src="https://mdbcdn.b-cdn.net/wp-content/plugins/woocommerce-gateway-stripe/assets/images/mastercard.svg" alt="Mastercard" />
+                                    <img width="45px" src="https://mdbcdn.b-cdn.net/wp-content/plugins/woocommerce/includes/gateways/paypal/assets/images/paypal.png" alt="PayPal" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header py-3">
+                                <h5 class="mb-0">Summary</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="d-flex justify-content-between">
+                                    <span>Products</span>
+                                    <span id="total-amount">${{ total_amount }}</span>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>Shipping</span>
+                                    <span>$10</span>
+                                </p>
+                                <hr />
+                                <p class="d-flex justify-content-between">
+                                    <strong>Total</strong>
+                                    <strong id="final-total">${{ finaly_total_amount }}</strong>
+                                </p>
+                                <form method="post" action="{% url 'checkout' %}">
+                                    {% csrf_token %}
+                                    <label for="carta">Hozircha to'lov tizimi ishlamepti </label>
+                                    <button class="btn btn-primary btn-block" type="submit" id="carta">Go to Checkout</button>
+                                </form>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const cartItems = document.querySelectorAll('.cart-item');
+    const totalAmountEl = document.getElementById('total-amount');
+    const finalTotalEl = document.getElementById('final-total');
+    const shippingCost = 10;
+
+    // Update totals after changes
+    function updateTotals() {
+        let totalAmount = 0;
+        cartItems.forEach(item => {
+            const quantity = parseInt(item.querySelector('.item-quantity').value);
+            const price = parseFloat(item.dataset.price);
+            totalAmount += quantity * price;
+        });
+        totalAmountEl.textContent = `$${totalAmount.toFixed(2)}`;
+        finalTotalEl.textContent = `$${(totalAmount + shippingCost).toFixed(2)}`;
+    }
+
+    cartItems.forEach(item => {
+        const minusBtn = item.querySelector('.minus-btn');
+        const plusBtn = item.querySelector('.plus-btn');
+        const quantityInput = item.querySelector('.item-quantity');
+        const totalPriceEl = item.querySelector('.item-total-price');
+        const form = item.querySelector('form');
+
+        // Minus button click handler
+        minusBtn.addEventListener('click', function (event) {
+            event.preventDefault();
+            let quantity = parseInt(quantityInput.value);
+            if (quantity > 1) {
+                quantity--;
+                quantityInput.value = quantity;
+                const totalPrice = (quantity * parseFloat(item.dataset.price)).toFixed(2);
+                totalPriceEl.innerHTML = `<strong>$${totalPrice}</strong>`;
+                form.submit(); // Submit the form to update the cart
+            }
+        });
+
+        // Plus button click handler
+        plusBtn.addEventListener('click', function (event) {
+            event.preventDefault();
+            let quantity = parseInt(quantityInput.value);
+            quantity++;
+            quantityInput.value = quantity;
+            const totalPrice = (quantity * parseFloat(item.dataset.price)).toFixed(2);
+            totalPriceEl.innerHTML = `<strong>$${totalPrice}</strong>`;
+            form.submit(); // Submit the form to update the cart
+        });
+    });
+
+    updateTotals();
+});
+</script>
+{% endblock %}

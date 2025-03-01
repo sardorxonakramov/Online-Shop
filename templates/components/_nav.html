@@ -1,0 +1,56 @@
+<nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'product' %}">Online Store</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="{% url 'category-list' %}">
+                        <i class="bi bi-layers-fill"></i>
+                        Categories
+                    </a>
+                </li>
+                {% if request.user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-1" aria-current="page" href="{% url 'account' %}">
+                        <i class="bi bi-person"></i>
+
+                        Account
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-1" aria-current="page" href="{% url 'cart' %}">
+                        <i class="bi bi-cart4"></i>
+                        My Cart
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+            <div class="d-flex align-items-center gap-2">
+                <form class="d-flex" role="search" method="GET" action="{% url 'search' %}">
+                    <input class="form-control me-2" type="search" name="query" placeholder="Search" aria-label="Search" />
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+                
+                
+                
+                {% if not request.user.is_authenticated %}
+                <a class="btn btn-outline-light" href="{% url 'login' %}">Login / Registration</a>
+                {% else %}
+                <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-light" style="display: flex; align-items: center;">
+                        <div class="gap-2">
+                        {{ request.user.first_name }}
+                        <i class="bi bi-box-arrow-right" style="margin-left: 4px;"></i>
+                    </div>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>

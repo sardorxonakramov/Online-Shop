@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5 product-container" style="max-width: 1200px; margin-top: 80px;">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+
+    <script>
+        setTimeout(function() {
+            const messages = document.querySelector('.messages');
+            if (messages) {
+                messages.style.display = 'none';
+            }
+        }, 3000);  // 3 sekunddan keyin xabarlarni yashiradi
+    </script>
+{% endif %}
+
+    <div class="row">
+        <!-- Mahsulot rasmi -->
+        <div class="col-md-6">
+            <div class="card" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
+                <img src="{{ product.image.url }}" alt="{{ product.title }}" class="product-image card-img-top"
+                    style="object-fit: cover; border-radius: 10px;">
+            </div>
+        </div>
+
+        <!-- Mahsulot ma'lumotlari -->
+        <div class="col-md-6">
+            <div class="card p-4" style="border-radius: 12px; box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);">
+                <h3 class="fw-bold">{{ product.title }}</h3>
+                <p>{{product.description }}</p>
+                <hr>
+                <p><strong>Mahsulot narxi:</strong> <span id="unit-price">${{ product.new_price }}</span></p>
+                <p><strong>Miqdori:</strong> <span id="quantity-display">1</span></p>
+                <p><strong>Umumiy narx:</strong> <span id="total-price">${{ product.new_price }}</span></p>
+
+                <!-- Miqdor boshqaruvi -->
+                <div class="d-flex align-items-center my-3">
+                    <button type="button" class="btn btn-secondary" onclick="updateQuantity(-1)"
+                        style="border-radius: 8px; padding: 10px 15px; font-size: 1.2rem;">-</button>
+
+                    <input id="quantity-input" type="number" class="form-control w-25 mx-2 text-center" value="1" min="1" readonly
+                        style="font-size: 1.2rem; border: 2px solid #ddd; border-radius: 8px;">
+
+                    <button type="button" class="btn btn-secondary" onclick="updateQuantity(1)"
+                        style="border-radius: 8px; padding: 10px 15px; font-size: 1.2rem;">+</button>
+                </div>
+
+                <form action="{% url 'add_to_cart' product.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" id="form-quantity-input" value="1">
+                    <button type="submit" class="btn btn-primary mt-3 ">Add to Cart</button>
+                </form>
+                
+                <a href="{% url 'cart' %}" class="btn btn-success mt-3">Buy Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const unitPrice = parseFloat(document.getElementById('unit-price').textContent.replace('$', ''));
+    const quantityInput = document.getElementById('quantity-input');
+    const quantityDisplay = document.getElementById('quantity-display');
+    const totalPriceElement = document.getElementById('total-price');
+    const formQuantityInput = document.getElementById('form-quantity-input'); // Formdagi yashirin input
+
+    function updateQuantity(change) {
+        let currentQuantity = parseInt(quantityInput.value);
+        let newQuantity = currentQuantity + change;
+
+        if (newQuantity < 1) newQuantity = 1;
+
+        quantityInput.value = newQuantity;
+        quantityDisplay.textContent = newQuantity;
+        const totalPrice = (unitPrice * newQuantity).toFixed(2);
+        totalPriceElement.textContent = `$${totalPrice}`;
+        formQuantityInput.value = newQuantity; // Yashirin inputni yangilash
+    }
+
+    window.updateQuantity = updateQuantity;
+});
+
+</script>
+
+{% endblock content %}
