@@ -1,42 +1,41 @@
-# Django
-*.pyc
+# Python cache files
 __pycache__/
-*.pyo
-*.pyd
-*.pdb
-*.py[co]
-*.~*
+*.py[cod]
+*$py.class
 
-# Environment Files
-.env
+# Virtual environment
+env/
+venv/
+ENV/
+.venv/
+.Python
 
-# SQLite database
-db.sqlite3
 
-# Logs
-*.log
-logs/
 
-# macOS
+# Settings for IDEs
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# macOS specific
 .DS_Store
 
-# Media and Static files
-media/
-staticfiles/
+# Windows specific
+Thumbs.db
 
-# Virtual Environment
-.venv/
-.env/
+# Secrets
+*.env
+.env.*
 
-# VSCode
-.vscode/
-
-# Coverage reports
-.coverage
+# Testing
+htmlcov/
+.tox/
+.nox/
+coverage.xml
 *.cover
-coverage/
+*.py,cover
 
-# Other files
-*.swp
-*.swo
-*.swn
+# Migrations
+*/migrations/*
+!*/migrations/__init__.py
